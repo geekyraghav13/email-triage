@@ -1,0 +1,96 @@
+name: email-triage
+version: "1.0.0"
+description: "AI agent environment for email triage - classify, prioritize, and respond to emails"
+author: "OpenEnv Contributor"
+tags:
+  - openenv
+  - email
+  - triage
+  - nlp
+  - real-world
+
+observation_space:
+  type: object
+  description: "Current email with inbox context and thread information"
+  properties:
+    current_email:
+      type: object
+      description: "The email currently being processed"
+    inbox_size:
+      type: integer
+      description: "Total number of emails in the inbox"
+    processed_count:
+      type: integer
+      description: "Number of emails already processed"
+    time_remaining:
+      type: integer
+      description: "Steps remaining before episode ends"
+    context:
+      type: string
+      description: "Thread context for multi-turn email conversations (hard task)"
+    task_id:
+      type: string
+      description: "Current task identifier"
+    step_number:
+      type: integer
+      description: "Current step number in the episode"
+
+action_space:
+  type: object
+  description: "Classification, prioritization, reply, escalation, archive, or skip actions"
+  properties:
+    action_type:
+      type: string
+      enum: ["classify", "prioritize", "reply", "escalate", "archive", "skip"]
+      description: "The type of action to perform"
+    category:
+      type: string
+      enum: ["bug_report", "feature_request", "billing", "general_inquiry", "spam", "escalation", "feedback"]
+      description: "Email category (required for most actions)"
+    priority:
+      type: string
+      enum: ["urgent", "high", "medium", "low"]
+      description: "Priority level (required for prioritize/reply/escalate)"
+    reply_text:
+      type: string
+      description: "Reply message content (required for reply action)"
+    escalate_to:
+      type: string
+      enum: ["manager", "legal", "billing_specialist", "technical_lead", "executive"]
+      description: "Escalation target (required for escalate action)"
+    reasoning:
+      type: string
+      description: "Optional explanation for the decision"
+
+reward_range: [0.0, 1.0]
+
+tasks:
+  - id: easy
+    name: "Email Classification"
+    description: "Classify 10 clear-cut emails into categories"
+    difficulty: easy
+    objective: "Correctly classify each email into one of the predefined categories"
+    grading: "Exact match on category. Score = correct / total"
+
+  - id: medium
+    name: "Priority Triage"
+    description: "Classify and prioritize 15 emails under time pressure"
+    difficulty: medium
+    objective: "Correctly classify and prioritize emails, handling ambiguous cases"
+    grading: "50% category + 30% priority + 20% order efficiency"
+
+  - id: hard
+    name: "Full Triage & Response"
+    description: "Classify, prioritize, and respond to 20 emails including threads"
+    difficulty: hard
+    objective: "Perform full email triage including contextual replies and escalations"
+    grading: "25% category + 15% priority + 35% reply quality + 15% escalation + 10% efficiency"
+
+endpoints:
+  reset: /reset
+  step: /step
+  state: /state
+  tasks: /tasks
+  grader: /grader
+  baseline: /baseline
+  health: /health
