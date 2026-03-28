@@ -1,9 +1,10 @@
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import FastAPI, HTTPException, Body, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 import os
 import sys
+import json
 
 from environment import EmailTriageEnv
 from models import Action, Observation, Reward, EnvironmentState
@@ -85,22 +86,28 @@ async def health():
 
 
 @app.post("/reset")
-async def reset(body: Optional[Dict[str, Any]] = Body(None)):
+async def reset(request: Request):
     """
     Reset environment to initial state for given task.
 
     Args:
-        body: Optional dict with task_id (defaults to "easy" if not provided)
+        request: HTTP request (body is optional, defaults to "easy" task)
 
     Returns:
         Observation and message
     """
     try:
-        # Extract task_id from body, default to "easy"
-        if body is None or not isinstance(body, dict):
-            task_id = "easy"
-        else:
-            task_id = body.get("task_id", "easy")
+        # Try to parse body, default to easy if no body or parsing fails
+        task_id = "easy"
+        try:
+            body_bytes = await request.body()
+            if body_bytes:
+                body = json.loads(body_bytes)
+                if isinstance(body, dict) and "task_id" in body:
+                    task_id = body["task_id"]
+        except:
+            # If body parsing fails, just use default
+            pass
 
         # Validate task_id
         valid_tasks = ["easy", "medium", "hard"]
@@ -120,6 +127,8 @@ async def reset(body: Optional[Dict[str, Any]] = Body(None)):
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal error: {str(e)}")
 
