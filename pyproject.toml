@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "email-triage"
+version = "1.0.0"
+description = "AI agent environment for email triage - classify, prioritize, and respond to emails"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "geekyraghav13"}
+]
+keywords = ["openenv", "email", "triage", "ai", "reinforcement-learning"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "pydantic>=2.5.0",
+    "numpy>=1.24.0",
+    "pyyaml>=6.0",
+    "python-multipart>=0.0.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+baseline = [
+    "openai>=1.6.0",
+]
+
+[project.urls]
+Homepage = "https://huggingface.co/spaces/geekyraghav13/openenv-email-triage"
+Repository = "https://github.com/geekyraghav13/email-triage"
+
+[tool.setuptools]
+packages = ["email_triage"]
+
+[tool.setuptools.package-dir]
+email_triage = "."
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
