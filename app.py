@@ -85,17 +85,21 @@ async def health():
 
 
 @app.post("/reset")
-async def reset(request: ResetRequest) -> ResetResponse:
+async def reset(request: Optional[ResetRequest] = None) -> ResetResponse:
     """
     Reset environment to initial state for given task.
 
     Args:
-        request: ResetRequest with task_id
+        request: ResetRequest with task_id (optional, defaults to "easy")
 
     Returns:
         ResetResponse with initial observation
     """
     try:
+        # Handle missing request body - default to easy task
+        if request is None:
+            request = ResetRequest(task_id="easy")
+
         # Validate task_id
         valid_tasks = ["easy", "medium", "hard"]
         if request.task_id not in valid_tasks:
