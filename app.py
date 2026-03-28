@@ -85,22 +85,22 @@ async def health():
 
 
 @app.post("/reset")
-async def reset(request: Optional[ResetRequest] = Body(None)) -> ResetResponse:
+async def reset(body: Optional[Dict[str, Any]] = Body(None)):
     """
     Reset environment to initial state for given task.
 
     Args:
-        request: ResetRequest with task_id (optional, defaults to "easy")
+        body: Optional dict with task_id (defaults to "easy" if not provided)
 
     Returns:
-        ResetResponse with initial observation
+        Observation and message
     """
     try:
-        # Handle missing or null request body - default to easy task
-        if request is None:
+        # Extract task_id from body, default to "easy"
+        if body is None or not isinstance(body, dict):
             task_id = "easy"
         else:
-            task_id = request.task_id
+            task_id = body.get("task_id", "easy")
 
         # Validate task_id
         valid_tasks = ["easy", "medium", "hard"]
@@ -113,10 +113,10 @@ async def reset(request: Optional[ResetRequest] = Body(None)) -> ResetResponse:
         # Reset environment
         observation = env.reset(task_id=task_id)
 
-        return ResetResponse(
-            observation=observation,
-            message=f"Environment reset for task: {task_id}"
-        )
+        return {
+            "observation": observation.model_dump() if hasattr(observation, 'model_dump') else observation,
+            "message": f"Environment reset for task: {task_id}"
+        }
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
