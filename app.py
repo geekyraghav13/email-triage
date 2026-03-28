@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
@@ -85,7 +85,7 @@ async def health():
 
 
 @app.post("/reset")
-async def reset(request: Optional[ResetRequest] = None) -> ResetResponse:
+async def reset(request: Optional[ResetRequest] = Body(None)) -> ResetResponse:
     """
     Reset environment to initial state for given task.
 
@@ -96,24 +96,26 @@ async def reset(request: Optional[ResetRequest] = None) -> ResetResponse:
         ResetResponse with initial observation
     """
     try:
-        # Handle missing request body - default to easy task
+        # Handle missing or null request body - default to easy task
         if request is None:
-            request = ResetRequest(task_id="easy")
+            task_id = "easy"
+        else:
+            task_id = request.task_id
 
         # Validate task_id
         valid_tasks = ["easy", "medium", "hard"]
-        if request.task_id not in valid_tasks:
+        if task_id not in valid_tasks:
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid task_id: {request.task_id}. Must be one of: {valid_tasks}"
+                detail=f"Invalid task_id: {task_id}. Must be one of: {valid_tasks}"
             )
 
         # Reset environment
-        observation = env.reset(task_id=request.task_id)
+        observation = env.reset(task_id=task_id)
 
         return ResetResponse(
             observation=observation,
-            message=f"Environment reset for task: {request.task_id}"
+            message=f"Environment reset for task: {task_id}"
         )
 
     except ValueError as e:
