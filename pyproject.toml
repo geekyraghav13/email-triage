@@ -44,7 +44,7 @@ baseline = [
 ]
 
 [project.scripts]
-server = "app:app"
+server = "server.app:main"
 
 [project.urls]
 Homepage = "https://huggingface.co/spaces/geekyraghav13/openenv-email-triage"

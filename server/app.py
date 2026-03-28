@@ -308,8 +308,12 @@ async def startup_event():
     print("=" * 60)
 
 
-if __name__ == "__main__":
+def main():
+    """Main entry point for the server."""
     import uvicorn
-
     port = int(os.environ.get("PORT", 7860))
     uvicorn.run(app, host="0.0.0.0", port=port)
+
+
+if __name__ == "__main__":
+    main()
